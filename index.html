@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jeff — Graphic Designer</title>
+  <meta name="description" content="Portfolio of Jeff, graphic designer: identity, packaging, posters and tee graphics.">
+  <meta name="theme-color" content="#111110">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="is-loading">
+
+  <!-- LOADER -->
+  <div class="loader" aria-hidden="true"><span class="loader__count">0</span></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <a class="header__name" href="#" data-go="home"><span data-name></span><em data-role></em></a>
+    <nav class="header__nav">
+      <a href="#" data-go="home" class="is-active">Work</a>
+      <a href="#archive" data-go="archive">Archive</a>
+      <a href="#about" data-go="about">About</a>
+    </nav>
+  </header>
+
+  <!-- HOME: full-screen slides -->
+  <main class="stage" aria-label="Projects">
+    <div class="stage__slides"></div>
+
+    <div class="stage__caption">
+      <p class="stage__meta"><span data-cat></span><span data-year></span></p>
+      <h1 class="stage__title"><button type="button" data-open-current></button></h1>
+      <span class="stage__viewmask"><button type="button" class="stage__view" data-open-current>View project</button></span>
+    </div>
+
+    <button class="stage__arrow stage__arrow--prev" type="button" aria-label="Previous project">←</button>
+    <button class="stage__arrow stage__arrow--next" type="button" aria-label="Next project">→</button>
+
+    <div class="stage__footer">
+      <button type="button" class="stage__hint" data-index-toggle>Scroll to browse <span>↓</span></button>
+      <p class="stage__count"><span data-current>01</span> — <span data-total>06</span></p>
+      <div class="stage__thumbs"></div>
+    </div>
+  </main>
+
+  <!-- INDEX: row of project cards -->
+  <section class="index" aria-label="All projects">
+    <div class="index__track"></div>
+    <button type="button" class="index__back" data-index-toggle>↑ Back to full view</button>
+  </section>
+
+  <!-- PROJECT PAGE -->
+  <article class="panel project" aria-hidden="true">
+    <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
+    <div class="panel__inner project__inner"></div>
+  </article>
+
+  <!-- ABOUT PAGE -->
+  <article class="panel about" aria-hidden="true">
+    <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
+    <div class="panel__inner about__inner"></div>
+  </article>
+
+  <!-- ARCHIVE PAGE (more photos) -->
+  <article class="panel archive" aria-hidden="true">
+    <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
+    <div class="panel__inner archive__inner"></div>
+  </article>
+
+  <!-- FULL-SCREEN PHOTO VIEWER -->
+  <div class="lightbox" aria-hidden="true" role="dialog" aria-label="Photo viewer">
+    <img class="lightbox__img" alt="">
+    <button type="button" class="lightbox__nav lightbox__nav--prev" aria-label="Previous photo">←</button>
+    <button type="button" class="lightbox__nav lightbox__nav--next" aria-label="Next photo">→</button>
+    <button type="button" class="lightbox__close">Close <span>×</span></button>
+    <p class="lightbox__count"></p>
+  </div>
+
+  <script src="content.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
