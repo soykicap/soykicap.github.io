@@ -19,51 +19,54 @@
     `@font-face{font-family:"${f.name}";src:url("${f.file}");font-display:swap;}`).join("");
   document.head.insertAdjacentHTML("beforeend", `<style>${fontCSS}</style>`);
   const focus = (p) => (p.coverFocus ? `object-position:${esc(p.coverFocus)};` : "");
+  // tall screens (phones held upright) show each project's single "card" photo instead of the wide cover
+  const TALL = "(max-aspect-ratio: 4/5)";
+  const cardOf = (p) => p.card || p.cover;
+  const cardStyle = (p) => (p.card ? "" : focus(p));
+  const coverPic = (p, alt, extra = "") =>
+    `<picture>${p.card ? `<source media="${TALL}" srcset="${esc(p.card)}">` : ""}<img style="${focus(p)}" src="${esc(p.cover)}" alt="${alt}" ${extra}></picture>`;
   const titleFont = (p) => (p.titleFont ? `font-family:"${esc(p.titleFont)}", var(--font-display);` : "");
+
+  /* ---------- slides = projects, plus the archive as the last slide ---------- */
+  const arc = data.archive;
+  const arcCount = arc ? arc.groups.reduce((n, g) => n + g.images.length, 0) : 0;
+  const S = P.slice();
+  if (arc && arc.cover) S.push({
+    title: arc.title || "Archive", isArchive: true, year: "",
+    category: arc.category || `Unedited frames, extras & school work · ${arcCount} photos`,
+    cover: arc.cover, card: arc.card,
+  });
 
   /* ---------- build the page from content.js ---------- */
   $("[data-name]").textContent = data.name;
   $("[data-role]").textContent = data.role;
   document.title = `${data.name} — ${data.role}`;
-  $("[data-total]").textContent = pad(P.length);
+  $("[data-total]").textContent = pad(S.length);
 
   const slidesEl = $(".stage__slides");
   const thumbsEl = $(".stage__thumbs");
   const track = $(".index__track");
 
-  P.forEach((p, i) => {
+  S.forEach((p, i) => {
     slidesEl.insertAdjacentHTML("beforeend",
       `<div class="slide">
-         <div class="slide__inner"><img style="${focus(p)}" src="${esc(p.cover)}" alt="${esc(p.title)} — ${esc(p.category)}" decoding="async"></div>
+         <div class="slide__inner">${coverPic(p, `${esc(p.title)} — ${esc(p.category)}`, 'decoding="async"')}</div>
          <div class="slide__shade"></div>
          <div class="slide__curtain slide__curtain--l"></div><div class="slide__curtain slide__curtain--r"></div>
        </div>`);
     thumbsEl.insertAdjacentHTML("beforeend",
-      `<button type="button" aria-label="Show ${esc(p.title)}"><img style="${focus(p)}" src="${esc(p.cover)}" alt="" decoding="async"></button>`);
+      `<button type="button" aria-label="Show ${esc(p.title)}"><img style="${cardStyle(p)}" src="${esc(cardOf(p))}" alt="" decoding="async"></button>`);
     track.insertAdjacentHTML("beforeend",
       `<button type="button" class="card">
-         <div class="card__img"><img style="${focus(p)}" src="${esc(p.cover)}" alt="" decoding="async"></div>
+         <div class="card__img"><img style="${cardStyle(p)}" src="${esc(cardOf(p))}" alt="" decoding="async"></div>
          <div class="card__cap"><span class="card__num">${pad(i + 1)}</span>
            <span><span class="card__title" style='${titleFont(p)}'>${esc(p.title)}</span><span class="card__cat">${esc(p.category)}</span></span></div>
        </button>`);
   });
 
-  const arc = data.archive;
-  const arcCount = arc ? arc.groups.reduce((n, g) => n + g.images.length, 0) : 0;
-  if (arc) {
-    const pics = arc.groups.map((g) => g.images[0]).slice(0, 4);
-    track.insertAdjacentHTML("beforeend",
-      `<a class="card card--more" href="#archive">
-         <div class="card__img more__grid">${pics.map((src) => `<img src="${esc(src)}" alt="" loading="lazy">`).join("")}</div>
-         <div class="card__cap"><span class="card__num">+</span>
-           <span><span class="card__title">Archive</span><span class="card__cat">${arcCount} more photos</span></span></div>
-       </a>`);
-  }
-
   const slides = $$(".slide");
   const thumbs = $$(".stage__thumbs button");
-  const cards = $$(".card:not(.card--more)");
-  const moreCard = $(".card--more");
+  const cards = $$(".card");
   const titleEl = $(".stage__title");
   const metaEl = $(".stage__meta");
   const viewBtn = $(".stage__view");
@@ -82,7 +85,7 @@
   let captionTimer;
   function setCaption(i, animateOut = true) {
     clearTimeout(captionTimer);
-    const p = P[i];
+    const p = S[i];
     $("[data-current]").textContent = pad(i + 1);
     thumbs.forEach((t, k) => t.classList.toggle("is-active", k === i));
     const swap = () => {
@@ -93,6 +96,7 @@
       titleEl.style.cssText = titleFont(p);
       $("button", titleEl).innerHTML = p.title.split(" ")
         .map((w, k) => `<span class="mask"><span class="word" style="--w:${k}">${esc(w)}</span></span>`).join(" ");
+      viewBtn.textContent = p.isArchive ? "View archive" : "View project";
       viewBtn.classList.remove("is-in", "is-out");
       viewBtn.style.setProperty("--vd", `${0.35 + p.title.split(" ").length * 0.08}s`);
       reflow(titleEl);
@@ -109,7 +113,7 @@
 
   /* ---------- slide change ---------- */
   function goTo(i, dir = i > current ? 1 : -1) {
-    i = (i + P.length) % P.length;
+    i = (i + S.length) % S.length;
     if (i === current || busy || mode !== "home") return;
     busy = true;
     const prev = slides[current];
@@ -167,7 +171,6 @@
       c.classList.toggle("is-origin", k === current);
       c.style.setProperty("--d", Math.abs(k - current));
     });
-    if (moreCard) moreCard.style.setProperty("--d", P.length - current);
     cardFit(cards[current], 60);
     document.body.classList.add("is-index");
     setTimeout(() => { busy = false; }, SPEED);
@@ -264,6 +267,88 @@
     apply();
   }
 
+  /* ---------- 3D models (loaded only when a project has them) ---------- */
+  const MV_SRC = "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js";
+  function ensureModelViewer() {
+    if (window.customElements && customElements.get("model-viewer")) return;
+    if (document.querySelector("script[data-mv]")) return;
+    const sc = document.createElement("script");
+    sc.type = "module"; sc.src = MV_SRC; sc.dataset.mv = "1";
+    document.head.appendChild(sc);
+  }
+  function renderModels(models) {
+    return `<div class="models">${models.map((m) => `
+      <figure class="model reveal">
+        <div class="model__stage">
+          <model-viewer data-src="${esc(m.src)}" alt="${esc(m.name)}" camera-controls disable-zoom touch-action="pan-y"
+            auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none"
+            camera-orbit="${esc(m.orbit || "30deg 70deg auto")}" environment-image="legacy" exposure="0.75" tone-mapping="agx"
+            shadow-intensity="1.5" shadow-softness="0.9" loading="lazy" reveal="auto"
+            ar ar-modes="webxr scene-viewer quick-look" ar-scale="fixed"
+            data-color="${esc(m.color || "#e8e3da")}" data-rough="${m.roughness ?? 0.55}" data-metal="${m.metalness ?? 0}">
+            <button slot="ar-button" class="model__ar">View in your space</button>
+            <div slot="progress-bar"></div>
+          </model-viewer>
+          <div class="model__tools">
+            <button type="button" data-zoom="1" aria-label="Zoom in">+</button>
+            <button type="button" data-zoom="-1" aria-label="Zoom out">−</button>
+            <button type="button" data-reset aria-label="Reset view">↺</button>
+          </div>
+          <p class="model__hint">Drag to rotate</p>
+        </div>
+        <figcaption>
+          <h4>${esc(m.name)}</h4>
+          ${m.caption ? `<p>${esc(m.caption)}</p>` : ""}
+          ${m.size ? `<span>${esc(m.size)}</span>` : ""}
+        </figcaption>
+      </figure>`).join("")}</div>`;
+  }
+  // Use the .glb file directly; if the host can't serve it (e.g. a preview), fall back to a packed copy in models/<name>.glb.js
+  async function resolveModel(src) {
+    try { const r = await fetch(src, { method: "HEAD" }); if (r.ok) return src; } catch (e) {}
+    const key = src;
+    if (!(window.__MODELS && window.__MODELS[key])) {
+      await new Promise((res) => { const sc = document.createElement("script"); sc.src = src + ".js"; sc.onload = sc.onerror = res; document.head.appendChild(sc); });
+    }
+    const b64 = window.__MODELS && window.__MODELS[key];
+    if (!b64) return src;
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    return URL.createObjectURL(new Blob([bytes], { type: "model/gltf-binary" }));
+  }
+  function wireModels(root) {
+    const mvs = $$("model-viewer", root);
+    if (!mvs.length) return;
+    ensureModelViewer();
+    // only fetch a model once it's close to the screen
+    const near = new IntersectionObserver((entries) => entries.forEach(async (en) => {
+      if (!en.isIntersecting) return;
+      near.unobserve(en.target);
+      en.target.src = await resolveModel(en.target.dataset.src);
+    }), { root: projectPanel, rootMargin: "400px 0px" });
+    mvs.forEach((mv) => near.observe(mv));
+    mvs.forEach((mv) => {
+      mv.addEventListener("load", () => {
+        const hex = mv.dataset.color.replace("#", "");
+        const rgb = [0, 2, 4].map((k) => parseInt(hex.slice(k, k + 2), 16) / 255);
+        (mv.model ? mv.model.materials : []).forEach((mat) => {
+          const pbr = mat.pbrMetallicRoughness;
+          pbr.setBaseColorFactor([...rgb, 1]);
+          pbr.setRoughnessFactor(+mv.dataset.rough);
+          pbr.setMetallicFactor(+mv.dataset.metal);
+        });
+        mv.closest(".model").classList.add("is-ready");
+      });
+      const fig = mv.closest(".model");
+      ["pointerdown", "touchstart"].forEach((ev) => mv.addEventListener(ev, () => fig.classList.add("is-touched"), { once: true, passive: true }));
+      $$("[data-zoom]", fig).forEach((b) => b.addEventListener("click", () => {
+        if (mv.zoom) mv.zoom(+b.dataset.zoom * 6);
+      }));
+      $("[data-reset]", fig).addEventListener("click", () => {
+        mv.cameraOrbit = mv.getAttribute("camera-orbit"); mv.fieldOfView = "auto"; mv.cameraTarget = "auto auto auto";
+      });
+    });
+  }
+
   function renderProject(i) {
     const p = P[i];
     const n = (i + 1) % P.length;
@@ -272,14 +357,14 @@
     const gallery = sections.map((sec, si) => `
       <section class="project__section">
         <header class="section__head reveal"><h3>${esc(sec.title || "")}</h3>${sec.credit ? `<p>${esc(sec.credit)}</p>` : ""}</header>
-        <div class="project__gallery">${sec.images.map((src, k) =>
-          `<figure class="reveal"><img src="${esc(src)}" alt="${esc(p.title)} — ${esc(sec.title || "")}" loading="lazy" decoding="async" data-sec="${si}" data-k="${k}"></figure>`).join("")}</div>
+        ${sec.models ? renderModels(sec.models) : `<div class="project__gallery">${(sec.images || []).map((src, k) =>
+          `<figure class="reveal"><img src="${esc(src)}" alt="${esc(p.title)} — ${esc(sec.title || "")}" loading="lazy" decoding="async" data-sec="${si}" data-k="${k}"></figure>`).join("")}</div>`}
       </section>`).join("");
     const more = p.archiveGroup && arc
       ? `<a class="project__more reveal" href="#archive-${esc(p.archiveGroup)}">More unedited shots of this look in the archive <span>→</span></a>` : "";
     const inner = $(".project__inner");
     inner.innerHTML = `
-      <div class="project__hero"><img style="${focus(p)}" src="${esc(p.cover)}" alt="${esc(p.title)}"></div>
+      <div class="project__hero">${coverPic(p, esc(p.title))}</div>
       <section class="project__intro">
         <div class="reveal">
           <p class="project__eyebrow">${pad(i + 1)} · ${esc(p.category)} · ${esc(p.year)}</p>
@@ -288,16 +373,18 @@
         <div class="reveal">
           <p class="project__summary">${esc(p.summary)}</p>
           <dl class="project__details">${details}</dl>
+          ${(p.links || []).map((l) => `<a class="project__link" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span>↗</span></a>`).join("")}
         </div>
       </section>
       ${gallery}
       ${more}
       <a class="project__next reveal" href="#project-${n + 1}">
         <span><small>Next project</small><strong style='${titleFont(P[n])}'>${esc(P[n].title)}</strong></span>
-        <span class="next__img"><img style="${focus(P[n])}" src="${esc(P[n].cover)}" alt=""></span>
+        <span class="next__img"><img style="${cardStyle(P[n])}" src="${esc(cardOf(P[n]))}" alt=""></span>
       </a>`;
     fadeImages(inner);
     $$(".project__gallery", inner).forEach(layoutGallery);
+    wireModels(inner);
     inner.onclick = (e) => {
       const im = e.target.closest("img[data-sec]");
       if (im) openLightbox(sections[im.dataset.sec].images, +im.dataset.k);
@@ -324,13 +411,15 @@
   function renderArchive(filter) {
     const a = arc;
     const all = a.groups.flatMap((g) => g.images.map((src) => ({ src, g: g.group })));
-    const chips = [`<button type="button" data-f="all">All <span>${all.length}</span></button>`]
-      .concat(a.groups.map((g) => `<button type="button" data-f="${esc(g.group)}">${esc(g.name)} <span>${g.images.length}</span></button>`)).join("");
+    const chip = (g) => `<button type="button" data-f="${esc(g.group)}">${esc(g.name)} <span>${g.images.length}</span></button>`;
+    const sections = [...new Set(a.groups.map((g) => g.section || ""))];
+    const chips = `<div class="filter-group"><button type="button" data-f="all">All <span>${all.length}</span></button></div>` +
+      sections.map((sec) => `<div class="filter-group">${sec ? `<span class="filter-group__label">${esc(sec)}</span>` : ""}${a.groups.filter((g) => (g.section || "") === sec).map(chip).join("")}</div>`).join("");
     const inner = $(".archive__inner");
     inner.innerHTML = `
       <header class="archive__head">
         <h2 class="archive__title reveal">${esc(a.title)}</h2>
-        <div class="reveal"><p class="archive__intro">${esc(a.intro)}</p><p class="archive__credit">${esc(a.credit)}</p></div>
+        <div class="reveal"><p class="archive__intro">${esc(a.intro)}</p><p class="archive__credit"></p></div>
       </header>
       <div class="archive__filters reveal">${chips}</div>
       <div class="archive__grid">${all.map((it, k) =>
@@ -339,6 +428,8 @@
     const setFilter = (f) => {
       $$(".archive__filters button", inner).forEach((b) => b.classList.toggle("is-active", b.dataset.f === f));
       $$(".archive__grid figure", inner).forEach((fig) => fig.classList.toggle("is-hidden", f !== "all" && fig.dataset.g !== f));
+      const credits = f === "all" ? [] : [...new Set(a.groups.filter((g) => g.group === f).map((g) => g.credit || a.credit).filter(Boolean))];
+      $(".archive__credit", inner).innerHTML = credits.map(esc).join("<br>");
     };
     setFilter(a.groups.some((g) => g.group === filter) ? filter : "all");
     inner.onclick = (e) => {
@@ -438,7 +529,7 @@
   }
   addEventListener("hashchange", route);
 
-  const openProject = (i) => { location.hash = `project-${i + 1}`; };
+  const openProject = (i) => { location.hash = S[i] && S[i].isArchive ? "archive" : `project-${i + 1}`; };
   const goHome = () => { if (location.hash) location.hash = ""; else openPanel(null); };
 
   /* ---------- clicks + keys ---------- */
@@ -485,7 +576,8 @@
   /* ---------- loader: count up while every cover image loads + decodes ---------- */
   const countEl = $(".loader__count");
   let loaded = 0, shown = 0;
-  const covers = P.map((p) => p.cover);
+  const tallScreen = matchMedia(TALL).matches;
+  const covers = S.map((p) => (tallScreen ? cardOf(p) : p.cover));
   covers.forEach((src) => {
     const im = new Image();
     im.src = src;
