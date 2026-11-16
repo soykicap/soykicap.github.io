@@ -531,7 +531,7 @@
       ${(a.awards || []).length ? `
       <section class="about__awards reveal">
         <p class="about__label">Recognition</p>
-        <ul class="awards">${a.awards.map((w) => `<li><strong>${esc(w.title)}</strong><span>${esc(w.detail)}</span><em>${esc(w.year)}</em></li>`).join("")}</ul>
+        <ul class="awards">${a.awards.map((w) => `<li><strong>${esc(w.title)}${w.translation ? ` <small class="awards__tr">${esc(w.translation)}</small>` : ""}</strong><span>${esc(w.detail)}</span><em>${esc(w.year)}</em></li>`).join("")}</ul>
         ${a.awards.some((w) => w.certificate) ? `<button type="button" class="awards__btn">View certificates <span>(${a.awards.filter((w) => w.certificate).length})</span></button>` : ""}
       </section>` : ""}
       ${(a.experience || []).length ? `

@@ -13,7 +13,7 @@ window.PORTFOLIO = {
       "Around that, I work wherever an idea needs me: illustration, 3D modelling and printing, coordinating models for runway shows, and co-founding takeover.zip, a collective running DJ events.",
     ],
     awards: [
-      { title: "Coup de Cœur", detail: "ESMOD Kuala Lumpur Awards Ceremony", year: "2026", certificate: "images/certs/cert-4.jpg" },
+      { title: "Coup de Cœur", translation: "Jury’s Highest Distinction", detail: "ESMOD Kuala Lumpur Awards Ceremony", year: "2026", certificate: "images/certs/cert-4.jpg" },
       { title: "Top of Category", detail: "Photoshoot & Styling · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-1.jpg" },
       { title: "Top of Category", detail: "Fashion Design Concept · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-2.jpg" },
       { title: "Hall of Fame nominee", detail: "Nominated for exemplary work · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-3.jpg" },

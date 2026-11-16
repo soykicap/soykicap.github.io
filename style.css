@@ -516,3 +516,4 @@ a.card { display: block; color: inherit; }
 .project__lede.is-cjk .project__lede-en { font-style: italic; letter-spacing: 0; }
 .book__tag { align-self: center; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #f2eee6; background: #8f1018; border-radius: 999px; padding: 5px 11px; }
 @media (max-width: 760px) { .awards em { text-align: left; } }
+.awards__tr { display: inline-block; font-family: var(--font-display); font-size: 0.66em; font-style: italic; color: var(--muted); margin-left: 0.35em; }
