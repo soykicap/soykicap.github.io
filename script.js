@@ -34,7 +34,6 @@
 
   $("[data-name]").textContent = data.name;
   $("[data-role]").textContent = data.role;
-  document.title = `${data.name} — ${data.role}`;
   $("[data-total]").textContent = pad(S.length);
 
   const slidesEl = $(".stage__slides");
