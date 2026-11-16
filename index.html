@@ -13,10 +13,8 @@
 </head>
 <body class="is-loading">
 
-  <!-- LOADER -->
   <div class="loader" aria-hidden="true"><span class="loader__count">0</span></div>
 
-  <!-- HEADER -->
   <header class="header">
     <a class="header__name" href="#" data-go="home"><span data-name></span><em data-role></em></a>
     <nav class="header__nav">
@@ -26,7 +24,6 @@
     </nav>
   </header>
 
-  <!-- HOME: full-screen slides -->
   <main class="stage" aria-label="Projects">
     <div class="stage__slides"></div>
 
@@ -46,31 +43,26 @@
     </div>
   </main>
 
-  <!-- INDEX: row of project cards -->
   <section class="index" aria-label="All projects">
     <div class="index__track"></div>
     <button type="button" class="index__back" data-index-toggle>↑ Back to full view</button>
   </section>
 
-  <!-- PROJECT PAGE -->
   <article class="panel project" aria-hidden="true">
     <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
     <div class="panel__inner project__inner"></div>
   </article>
 
-  <!-- ABOUT PAGE -->
   <article class="panel about" aria-hidden="true">
     <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
     <div class="panel__inner about__inner"></div>
   </article>
 
-  <!-- ARCHIVE PAGE (more photos) -->
   <article class="panel archive" aria-hidden="true">
     <div class="panel__bar"><button type="button" class="panel__close" data-close>Close <span>×</span></button></div>
     <div class="panel__inner archive__inner"></div>
   </article>
 
-  <!-- FULL-SCREEN PHOTO VIEWER -->
   <div class="lightbox" aria-hidden="true" role="dialog" aria-label="Photo viewer">
     <img class="lightbox__img" alt="">
     <button type="button" class="lightbox__nav lightbox__nav--prev" aria-label="Previous photo">←</button>

@@ -1,5 +1,3 @@
-/* Site behaviour. You shouldn't need to edit this file —
-   all text and images live in content.js. */
 (() => {
   const data = window.PORTFOLIO;
   const P = data.projects;
@@ -8,18 +6,16 @@
   const pad = (n) => String(n).padStart(2, "0");
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reflow = (el) => void el.offsetWidth;
-  const SPEED = 1200; // keep in step with --speed in style.css
+  const SPEED = 1200;
 
   let current = 0;
   let busy = false;
-  let mode = "home"; // "home" | "index"
+  let mode = "home";
 
-  /* ---------- custom title fonts ---------- */
   const fontCSS = (data.fonts || []).map((f) =>
     `@font-face{font-family:"${f.name}";src:url("${f.file}");font-display:swap;}`).join("");
   document.head.insertAdjacentHTML("beforeend", `<style>${fontCSS}</style>`);
   const focus = (p) => (p.coverFocus ? `object-position:${esc(p.coverFocus)};` : "");
-  // tall screens (phones held upright) show each project's single "card" photo instead of the wide cover
   const TALL = "(max-aspect-ratio: 4/5)";
   const cardOf = (p) => p.card || p.cover;
   const cardStyle = (p) => (p.card ? "" : focus(p));
@@ -27,7 +23,6 @@
     `<picture>${p.card ? `<source media="${TALL}" srcset="${esc(p.card)}">` : ""}<img style="${focus(p)}" src="${esc(p.cover)}" alt="${alt}" ${extra}></picture>`;
   const titleFont = (p) => (p.titleFont ? `font-family:"${esc(p.titleFont)}", var(--font-display);` : "");
 
-  /* ---------- slides = projects, plus the archive as the last slide ---------- */
   const arc = data.archive;
   const arcCount = arc ? arc.groups.reduce((n, g) => n + g.images.length, 0) : 0;
   const S = P.slice();
@@ -37,7 +32,6 @@
     cover: arc.cover, card: arc.card,
   });
 
-  /* ---------- build the page from content.js ---------- */
   $("[data-name]").textContent = data.name;
   $("[data-role]").textContent = data.role;
   document.title = `${data.name} — ${data.role}`;
@@ -71,7 +65,6 @@
   const metaEl = $(".stage__meta");
   const viewBtn = $(".stage__view");
 
-  // images inside a container fade in when ready
   function fadeImages(root) {
     $$("img", root).forEach((img) => {
       img.classList.add("fade");
@@ -81,7 +74,6 @@
     });
   }
 
-  /* ---------- caption: old title slides up and out, new one rises in ---------- */
   let captionTimer;
   function setCaption(i, animateOut = true) {
     clearTimeout(captionTimer);
@@ -111,7 +103,6 @@
     } else swap();
   }
 
-  /* ---------- slide change ---------- */
   function goTo(i, dir = i > current ? 1 : -1) {
     i = (i + S.length) % S.length;
     if (i === current || busy || mode !== "home") return;
@@ -132,7 +123,6 @@
     setTimeout(() => { if (!prev.classList.contains("is-active")) prev.classList.remove("is-leaving"); }, SPEED + 50);
   }
 
-  // jump without animation (used when leaving the index)
   function setInstant(i) {
     document.body.classList.add("is-snapping");
     slides.forEach((s) => s.classList.remove("is-active", "is-leaving", "from-left"));
@@ -142,8 +132,6 @@
     if (i !== current) { current = i; setCaption(i, false); }
   }
 
-  /* ---------- index mode (cards row) ---------- */
-  // work out how to shrink the full-screen image so it lands exactly on a card
   function cardFit(card, lift = 0) {
     const r = $(".card__img", card).getBoundingClientRect();
     const k = r.height / innerHeight;
@@ -178,7 +166,6 @@
 
   function exitIndex() {
     if (mode !== "index" || busy) return;
-    // return to whichever card is nearest the middle of the screen
     const mid = innerWidth / 2;
     let best = 0, bestD = Infinity;
     cards.forEach((c, k) => {
@@ -195,7 +182,6 @@
     setTimeout(() => { busy = false; }, SPEED);
   }
 
-  // smooth horizontal scrolling with the mouse wheel
   function glide() {
     const d = targetX - track.scrollLeft;
     if (Math.abs(d) < 0.5) { animating = false; return; }
@@ -226,7 +212,6 @@
     if (!animating) { animating = true; requestAnimationFrame(glide); }
   }, { passive: false });
 
-  /* ---------- touch: swipe sideways for next/prev, up for index ---------- */
   let tx = 0, ty = 0;
   $(".stage").addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
   $(".stage").addEventListener("touchend", (e) => {
@@ -235,7 +220,6 @@
     else if (dy < -60) enterIndex();
   });
 
-  /* ---------- project + about panels ---------- */
   const projectPanel = $(".project");
   const aboutPanel = $(".about");
   const archivePanel = $(".archive");
@@ -249,7 +233,6 @@
     $$(".reveal", panel).forEach((el) => io.observe(el));
   }
 
-  // landscape shots go full width, portrait shots sit in pairs; a leftover portrait is centred
   function layoutGallery(gal) {
     const figs = $$("figure", gal);
     const apply = () => {
@@ -258,7 +241,7 @@
       figs.forEach((f) => {
         f.classList.remove("wide", "solo");
         const im = $("img", f);
-        if (im.naturalWidth && im.naturalWidth > im.naturalHeight) { flush(); f.classList.add("wide"); }
+        if (f.dataset.wide || (im.naturalWidth && im.naturalWidth > im.naturalHeight * 1.05)) { flush(); f.classList.add("wide"); }
         else run.push(f);
       });
       flush();
@@ -267,7 +250,6 @@
     apply();
   }
 
-  /* ---------- 3D models (loaded only when a project has them) ---------- */
   const MV_SRC = "https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js";
   function ensureModelViewer() {
     if (window.customElements && customElements.get("model-viewer")) return;
@@ -303,7 +285,6 @@
         </figcaption>
       </figure>`).join("")}</div>`;
   }
-  // Use the .glb file directly; if the host can't serve it (e.g. a preview), fall back to a packed copy in models/<name>.glb.js
   async function resolveModel(src) {
     try { const r = await fetch(src, { method: "HEAD" }); if (r.ok) return src; } catch (e) {}
     const key = src;
@@ -319,7 +300,6 @@
     const mvs = $$("model-viewer", root);
     if (!mvs.length) return;
     ensureModelViewer();
-    // only fetch a model once it's close to the screen
     const near = new IntersectionObserver((entries) => entries.forEach(async (en) => {
       if (!en.isIntersecting) return;
       near.unobserve(en.target);
@@ -349,16 +329,156 @@
     });
   }
 
+
+  const BOOKS = (window.PORTFOLIO && window.PORTFOLIO.books) || {};
+  const bookName = (p) => String(p.title).split("—").pop().trim();
+  function bookSpreads(b) {
+    return b.spreads.map((n) => {
+      const src = b.dir + n + ".jpg";
+      if (n === "front") return { n, label: "Front cover", l: null, r: { src, pos: "full" } };
+      if (n === "back") return { n, label: "Back cover", l: { src, pos: "full" }, r: null };
+      const a = +n + (b.renumber || 0);
+      return { n, a, label: `Pages ${a}–${a + 1}`, l: { src, pos: "left" }, r: { src, pos: "right" }, link: (b.links || {})[n] };
+    });
+  }
+  function spreadFor(spreads, page) {
+    const i = spreads.findIndex((s) => s.a === page || s.a + 1 === page);
+    return i < 0 ? 0 : i;
+  }
+  function renderBooks(p) {
+    if (!p.books) return "";
+    const look = bookName(p);
+    return `<section class="project__section books">
+      <header class="section__head reveal"><h3>Process books</h3><p>TURMOIL · Final Year Collection</p></header>
+      ${Object.entries(p.books).filter(([id]) => BOOKS[id]).map(([id, [f0, t0]]) => { const k = BOOKS[id].renumber || 0, from = f0 + k, to = t0 + k; return `
+        <div class="book reveal" data-book="${esc(id)}" data-from="${from}">
+          <div class="book__head">
+            <h4>${esc(BOOKS[id].title)}</h4>
+            ${BOOKS[id].tag ? `<span class="book__tag">${esc(BOOKS[id].tag)}</span>` : ""}
+            <p class="book__note">${esc((BOOKS[id].note || "{look} appears on pages {from}–{to}").replace("{look}", look).replace("{from}", from).replace("{to}", to))}</p>
+            <button class="book__jump" type="button">Skip to ${esc(look)} <span>→</span></button>
+          </div>
+          <div class="book__stage">
+            <div class="book__spread"><div class="book__half book__l"></div><div class="book__half book__r"></div></div>
+            <button class="book__nav book__prev" type="button" aria-label="Previous pages">←</button>
+            <button class="book__nav book__next" type="button" aria-label="Next pages">→</button>
+          </div>
+          <div class="book__foot"><span class="book__label"></span><span class="book__count"></span></div>
+        </div>`; }).join("")}
+    </section>`;
+  }
+  function paintHalf(el, h) {
+    el.classList.toggle("is-empty", !h);
+    el.style.backgroundImage = h && h.src ? `url("${h.src}")` : "";
+    el.dataset.pos = h ? h.pos : "";
+  }
+  const preloaded = new Set();
+  function preload(src) { if (src && !preloaded.has(src)) { preloaded.add(src); const im = new Image(); im.src = src; } }
+  function wireBooks(root) {
+    $$(".book", root).forEach((el) => {
+      const b = BOOKS[el.dataset.book];
+      const spreads = bookSpreads(b);
+      const pages = [];
+      spreads.forEach((s, si) => { if (s.l) pages.push({ h: s.l, si, side: "l" }); if (s.r) pages.push({ h: s.r, si, side: "r" }); });
+      const mq = matchMedia("(max-width: 720px)");
+      const single = () => false;
+      const stage = $(".book__stage", el), spread = $(".book__spread", el);
+      const L = $(".book__l", el), R = $(".book__r", el);
+      let si = 0, pi = 0, busy = false, started = false;
+      const linkFor = (s) => s.link ? `<a class="book__link" href="${esc(s.link.url)}" target="_blank" rel="noopener" style="left:${s.link.x}%;top:${s.link.y}%">${esc(s.link.label)}</a>` : "";
+      function paint() {
+        $$(".book__link", spread).forEach((a) => a.remove());
+        el.classList.toggle("is-single", single());
+        if (single()) {
+          const pg = pages[pi], s = spreads[pg.si];
+          paintHalf(L, null); paintHalf(R, pg.h);
+          const pageNo = s.n === "front" ? "Front cover" : s.n === "back" ? "Back cover" : `Page ${pg.side === "l" ? s.a : s.a + 1}`;
+          $(".book__label", el).textContent = pageNo;
+          $(".book__count", el).textContent = `${pi + 1} / ${pages.length}`;
+          if (s.link && pg.side === "r") R.insertAdjacentHTML("beforeend", linkFor({ link: { ...s.link, x: (s.link.x - 50) * 2 } }));
+          si = pg.si;
+          [pages[pi - 1], pages[pi + 1]].forEach((q) => q && preload(q.h.src));
+        } else {
+          const s = spreads[si];
+          paintHalf(L, s.l); paintHalf(R, s.r);
+          $(".book__label", el).textContent = s.label;
+          $(".book__count", el).textContent = `${si + 1} / ${spreads.length}`;
+          if (s.link) spread.insertAdjacentHTML("beforeend", linkFor(s));
+          [spreads[si - 1], spreads[si + 1]].forEach((q) => q && preload((q.l || q.r).src || (q.r && q.r.src)));
+        }
+        $(".book__prev", el).disabled = single() ? pi === 0 : si === 0;
+        $(".book__next", el).disabled = single() ? pi === pages.length - 1 : si === spreads.length - 1;
+      }
+      function turn(dir) {
+        if (busy) return;
+        if (single()) {
+          const ni = pi + dir; if (ni < 0 || ni >= pages.length) return;
+          busy = true;
+          spread.classList.add(dir > 0 ? "slide-out-l" : "slide-out-r");
+          setTimeout(() => {
+            pi = ni; paint();
+            spread.classList.remove("slide-out-l", "slide-out-r");
+            spread.classList.add(dir > 0 ? "slide-in-r" : "slide-in-l");
+            requestAnimationFrame(() => requestAnimationFrame(() => { spread.classList.remove("slide-in-r", "slide-in-l"); }));
+            setTimeout(() => (busy = false), 260);
+          }, 180);
+          return;
+        }
+        const ni = si + dir; if (ni < 0 || ni >= spreads.length) return;
+        const cur = spreads[si], nxt = spreads[ni];
+        busy = true;
+        $$(".book__link", spread).forEach((a) => a.remove());
+        const leaf = document.createElement("div");
+        leaf.className = "book__leaf " + (dir > 0 ? "is-next" : "is-prev");
+        leaf.innerHTML = `<div class="book__face book__front"></div><div class="book__face book__back"></div>`;
+        const [front, back] = leaf.children;
+        if (dir > 0) { paintHalf(front, cur.r); paintHalf(back, nxt.l); paintHalf(R, nxt.r); }
+        else { paintHalf(front, cur.l); paintHalf(back, nxt.r); paintHalf(L, nxt.l); }
+        spread.appendChild(leaf);
+        leaf.getBoundingClientRect();
+        requestAnimationFrame(() => leaf.classList.add("is-turning"));
+        const done = () => { si = ni; paint(); leaf.remove(); busy = false; };
+        leaf.addEventListener("transitionend", done, { once: true });
+        setTimeout(() => leaf.isConnected && done(), 1100);
+      }
+      function jumpTo(page) {
+        if (single()) { const t = spreadFor(spreads, page); pi = Math.max(0, pages.findIndex((q) => q.si === t && (spreads[t].a === page ? q.side === "l" : q.side === "r"))); }
+        else si = spreadFor(spreads, page);
+        spread.classList.add("is-fading");
+        setTimeout(() => { paint(); spread.classList.remove("is-fading"); }, 200);
+      }
+      $(".book__prev", el).onclick = () => turn(-1);
+      $(".book__next", el).onclick = () => turn(1);
+      $(".book__jump", el).onclick = () => jumpTo(+el.dataset.from);
+      spread.addEventListener("click", (e) => {
+        if (e.target.closest(".book__link")) return;
+        const r = spread.getBoundingClientRect();
+        turn(e.clientX - r.left < r.width / 2 ? -1 : 1);
+      });
+      let sx = null;
+      stage.addEventListener("touchstart", (e) => { sx = e.touches[0].clientX; }, { passive: true });
+      stage.addEventListener("touchend", (e) => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; sx = null; if (Math.abs(dx) > 40) turn(dx < 0 ? 1 : -1); });
+      stage.tabIndex = 0;
+      stage.addEventListener("keydown", (e) => { if (e.key === "ArrowRight") { e.stopPropagation(); turn(1); } if (e.key === "ArrowLeft") { e.stopPropagation(); turn(-1); } });
+      mq.addEventListener("change", () => { if (single()) pi = Math.max(0, pages.findIndex((q) => q.si === si)); paint(); });
+      const io = new IntersectionObserver((es) => { if (es.some((x) => x.isIntersecting) && !started) { started = true; paint(); io.disconnect(); } }, { rootMargin: "600px" });
+      io.observe(el);
+    });
+  }
+
+  const withIG = (v) => esc(v).replace(/([^,()\s—·][^,()—·]*?)\s*\(@([\w.]+)\)/g, (m, name, h) =>
+    `<a class="ig" href="https://www.instagram.com/${h}/" target="_blank" rel="noopener" title="@${h} on Instagram">${name.trim()}</a>`);
+
   function renderProject(i) {
     const p = P[i];
     const n = (i + 1) % P.length;
-    const details = Object.entries(p.details || {}).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+    const details = Object.entries(p.details || {}).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${withIG(v)}</dd>`).join("");
     const sections = p.sections || (p.gallery ? [{ title: "", images: p.gallery }] : []);
     const gallery = sections.map((sec, si) => `
       <section class="project__section">
-        <header class="section__head reveal"><h3>${esc(sec.title || "")}</h3>${sec.credit ? `<p>${esc(sec.credit)}</p>` : ""}</header>
-        ${sec.models ? renderModels(sec.models) : `<div class="project__gallery">${(sec.images || []).map((src, k) =>
-          `<figure class="reveal"><img src="${esc(src)}" alt="${esc(p.title)} — ${esc(sec.title || "")}" loading="lazy" decoding="async" data-sec="${si}" data-k="${k}"></figure>`).join("")}</div>`}
+        <header class="section__head reveal"><h3>${esc(sec.title || "")}</h3>${sec.credit ? `<p>${withIG(sec.credit)}</p>` : ""}</header>
+        ${sec.models ? renderModels(sec.models) : `<div class="project__gallery">${(sec.images || []).map((it, k) => [typeof it === "string" ? it : it.src, typeof it === "object" && it.wide]).map(([src, wide], k) =>
+          `<figure class="reveal"${wide ? ' data-wide="1"' : ""}><img src="${esc(src)}" alt="${esc(p.title)} — ${esc(sec.title || "")}" loading="lazy" decoding="async" data-sec="${si}" data-k="${k}"></figure>`).join("")}</div>`}
       </section>`).join("");
     const more = p.archiveGroup && arc
       ? `<a class="project__more reveal" href="#archive-${esc(p.archiveGroup)}">More unedited shots of this look in the archive <span>→</span></a>` : "";
@@ -371,12 +491,15 @@
           <h2 class="project__title" style='${titleFont(p)}'>${esc(p.title)}</h2>
         </div>
         <div class="reveal">
+          ${p.collection ? `<p class="project__lede${/[\u3400-\u9fff]/.test(p.collection) ? " is-cjk" : ""}"${/[\u3400-\u9fff]/.test(p.collection) ? ' lang="zh"' : ""}>${esc(p.collection)}${p.collectionTranslation ? ` <span class="project__lede-en">${esc(p.collectionTranslation)}</span>` : ""}</p>` : ""}
           <p class="project__summary">${esc(p.summary)}</p>
+          ${p.note ? `<p class="project__note">${esc(p.note)}</p>` : ""}
           <dl class="project__details">${details}</dl>
           ${(p.links || []).map((l) => `<a class="project__link" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} <span>↗</span></a>`).join("")}
         </div>
       </section>
       ${gallery}
+      ${renderBooks(p)}
       ${more}
       <a class="project__next reveal" href="#project-${n + 1}">
         <span><small>Next project</small><strong style='${titleFont(P[n])}'>${esc(P[n].title)}</strong></span>
@@ -385,9 +508,10 @@
     fadeImages(inner);
     $$(".project__gallery", inner).forEach(layoutGallery);
     wireModels(inner);
+    wireBooks(inner);
     inner.onclick = (e) => {
       const im = e.target.closest("img[data-sec]");
-      if (im) openLightbox(sections[im.dataset.sec].images, +im.dataset.k);
+      if (im) openLightbox(sections[im.dataset.sec].images.map((it) => (typeof it === "string" ? it : it.src)), +im.dataset.k);
     };
     watchReveals(projectPanel);
   }
@@ -404,7 +528,20 @@
           <p class="about__label" style="margin-top:28px">Based in</p><p>${esc(data.location)}</p></div>
         <div class="reveal"><p class="about__label">What I do</p><ul class="about__list">${services}</ul></div>
         <div class="reveal"><p class="about__label">Contact</p><ul class="about__list">${contact}</ul></div>
-      </div>`;
+      </div>
+      ${(a.awards || []).length ? `
+      <section class="about__awards reveal">
+        <p class="about__label">Recognition</p>
+        <ul class="awards">${a.awards.map((w) => `<li><strong>${esc(w.title)}</strong><span>${esc(w.detail)}</span><em>${esc(w.year)}</em></li>`).join("")}</ul>
+        ${a.awards.some((w) => w.certificate) ? `<button type="button" class="awards__btn">View certificates <span>(${a.awards.filter((w) => w.certificate).length})</span></button>` : ""}
+      </section>` : ""}
+      ${(a.experience || []).length ? `
+      <section class="about__awards reveal">
+        <p class="about__label">Experience</p>
+        <ul class="awards">${a.experience.map((w) => `<li><strong>${esc(w.title)}</strong><span>${esc(w.detail)}</span><em>${esc(w.year)}</em></li>`).join("")}</ul>
+      </section>` : ""}`;
+    const certBtn = $(".awards__btn", aboutPanel);
+    if (certBtn) certBtn.addEventListener("click", () => openLightbox(a.awards.filter((w) => w.certificate).map((w) => w.certificate), 0));
     watchReveals(aboutPanel);
   }
 
@@ -444,7 +581,6 @@
     watchReveals(archivePanel);
   }
 
-  /* ---------- full-screen photo viewer ---------- */
   const lb = $(".lightbox"), lbImg = $(".lightbox__img"), lbCount = $(".lightbox__count");
   let lbList = [], lbI = 0, lbToken = 0;
   function showLb(i) {
@@ -459,7 +595,6 @@
       requestAnimationFrame(() => lbImg.classList.add("is-loaded"));
     }, Math.max(0, 250 - (performance.now() - t0)));
     pre.src = src;
-    // warm up the neighbours
     [lbI + 1, lbI - 1].forEach((k) => { new Image().src = lbList[(k + lbList.length) % lbList.length]; });
   }
   function openLightbox(list, i) {
@@ -494,14 +629,12 @@
     $$(".header__nav a").forEach((a) => a.classList.toggle("is-active", a.dataset.go === key));
   }
 
-  /* ---------- simple page routing with #about / #project-2 ---------- */
   function route() {
     const h = location.hash.slice(1);
     const m = h.match(/^project-(\d+)$/);
     if (m && P[m[1] - 1]) {
       const i = m[1] - 1;
       if (projectPanel.classList.contains("is-open")) {
-        // already on a project page: fade out, swap, fade in
         const inner = $(".project__inner");
         inner.style.opacity = "0";
         setTimeout(() => {
@@ -532,7 +665,6 @@
   const openProject = (i) => { location.hash = S[i] && S[i].isArchive ? "archive" : `project-${i + 1}`; };
   const goHome = () => { if (location.hash) location.hash = ""; else openPanel(null); };
 
-  /* ---------- clicks + keys ---------- */
   $(".stage__arrow--prev").addEventListener("click", () => goTo(current - 1, -1));
   $(".stage__arrow--next").addEventListener("click", () => goTo(current + 1, 1));
   thumbs.forEach((t, k) => t.addEventListener("click", () => goTo(k)));
@@ -573,7 +705,6 @@
     }
   });
 
-  /* ---------- loader: count up while every cover image loads + decodes ---------- */
   const countEl = $(".loader__count");
   let loaded = 0, shown = 0;
   const tallScreen = matchMedia(TALL).matches;
@@ -600,10 +731,9 @@
   function start() {
     document.body.classList.remove("is-loading");
     document.body.classList.add("is-ready");
-    slides[current].classList.add("is-active"); // first image wipes in
+    slides[current].classList.add("is-active");
     setCaption(current, false);
     route();
-    // quietly load gallery images in the background so project pages open instantly
     setTimeout(() => P.slice(0, 4).forEach((p) => ((p.sections && p.sections[0].images) || p.gallery || []).forEach((src) => { new Image().src = src; })), 1500);
   }
 })();
