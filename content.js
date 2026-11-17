@@ -39,6 +39,7 @@ window.PORTFOLIO = {
 
   books: {
     main: { title: "Main Line Portfolio", dir: "images/books/main/", pages: 66,
+      note: "Includes process photos and construction details of the garments",
       spreads: ["front", "04", "06", "08", "10", "12", "14", "16", "18", "20", "22", "24", "26", "28", "30", "32", "34", "36", "38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60", "62", "64", "66"], renumber: -2,
       links: { "12": { url: "https://youtu.be/ybLgTnwlZGw", label: "Watch the mood board film", x: 75, y: 91 } } },
     photo: { title: "Photo Book", dir: "images/books/photo/", pages: 62,
