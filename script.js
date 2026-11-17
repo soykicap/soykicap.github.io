@@ -486,7 +486,7 @@
       <div class="project__hero">${coverPic(p, esc(p.title))}</div>
       <section class="project__intro">
         <div class="reveal">
-          <p class="project__eyebrow">${pad(i + 1)} · ${esc(p.category)} · ${esc(p.year)}</p>
+          <p class="project__eyebrow">${pad(i + 1)} · ${esc(p.category)}${p.year ? ` · ${esc(p.year)}` : ""}</p>
           <h2 class="project__title" style='${titleFont(p)}'>${esc(p.title)}</h2>
         </div>
         <div class="reveal">

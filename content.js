@@ -189,7 +189,7 @@ window.PORTFOLIO = {
     {
       title: "Illustration",
       category: "Illustration · Graphic Design",
-      year: "2023–2025",
+      year: "",
       cover: "images/covers/illustration.jpg",
       card: "images/illus/illus-4156.jpg",
       summary: "Illustration and graphic work: line-up drawings for HUNTILANAK's KLFW 2025 collection, posters and characters for the FIFTH thrift store, pen-and-marker fashion drawings, and personal and school pieces.",

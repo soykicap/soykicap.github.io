@@ -537,3 +537,4 @@ a.card { display: block; color: inherit; }
     radial-gradient(ellipse 62% 42% at 50% 50%, rgba(0,0,0,0.42), transparent 75%),
     linear-gradient(180deg, rgba(0,0,0,0.5), transparent 22%, transparent 66%, rgba(0,0,0,0.55));
 }
+.stage__meta span:empty { display: none; }
