@@ -1,5 +1,5 @@
 window.PORTFOLIO = {
-  name: "Jeff",
+  name: "Jeff Lee",
   role: "Designer",
   location: "Kuala Lumpur, Malaysia",
 
@@ -10,12 +10,15 @@ window.PORTFOLIO = {
     headline: "Multi\u2011disciplinary creative, rooted in fashion.",
     paragraphs: [
       "I'm a multi\u2011disciplinary creative based in Kuala Lumpur, trained in fashion design. I design and make my own garments, from research and pattern making to sewing and hand-finishing.",
-      "Around that, I work wherever an idea needs me: illustration, 3D modelling and printing, coordinating models for runway shows, and co-founding takeover.zip, a collective running DJ events.",
+      "Around that, I work wherever an idea needs me: organising runway shows from top to bottom, coordinating models, illustration, 3D modelling and printing, and co-founding takeover.zip, a collective running DJ events.",
     ],
+    photo: "images/about/jeff.jpg",
+    focus: "Right now I’m focused on fashion design, pattern making and sewing, alongside graphic design and event organising.",
     awards: [
       { title: "Coup de Cœur", translation: "Jury’s Highest Distinction", detail: "ESMOD Kuala Lumpur Awards Ceremony", year: "2026", certificate: "images/certs/cert-4.jpg" },
       { title: "Top of Category", detail: "Photoshoot & Styling · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-1.jpg" },
       { title: "Top of Category", detail: "Fashion Design Concept · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-2.jpg" },
+      { title: "Special Talent Award", detail: "3D Printing & Modelling · STWORKSHOP, China", year: "2026", certificate: "images/certs/cert-5.jpg" },
       { title: "Hall of Fame nominee", detail: "Nominated for exemplary work · The One Academy Hall of Fame", year: "2025", certificate: "images/certs/cert-3.jpg" },
     ],
     services: ["Fashion design", "Pattern making", "Sewing", "Graphic design", "Web design (Figma, Framer)", "Runway show organising", "Runway model coordination", "Illustration", "3D modelling", "3D printing", "Clay & ceramic work", "Woodworking", "Rave event organising", "Packaging design", "Tee & merch graphics"],

@@ -521,9 +521,13 @@
     const contact = data.contact.map((c) =>
       `<li><a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.label)} <span>${esc(c.value)}</span></a></li>`).join("");
     $(".about__inner").innerHTML = `
-      <h2 class="about__headline reveal">${esc(a.headline)}</h2>
+      <div class="about__top${a.photo ? " has-photo" : ""}">
+        <h2 class="about__headline reveal">${esc(a.headline)}</h2>
+        ${a.photo ? `<figure class="about__photo reveal"><img src="${esc(a.photo)}" alt="${esc(data.name)}" decoding="async"></figure>` : ""}
+      </div>
       <div class="about__grid">
         <div class="reveal"><p class="about__label">About</p>${a.paragraphs.map((t) => `<p>${esc(t)}</p>`).join("")}
+          ${a.focus ? `<p class="about__label" style="margin-top:28px">Currently focused on</p><p>${esc(a.focus)}</p>` : ""}
           <p class="about__label" style="margin-top:28px">Based in</p><p>${esc(data.location)}</p></div>
         <div class="reveal"><p class="about__label">What I do</p><ul class="about__list">${services}</ul></div>
         <div class="reveal"><p class="about__label">Contact</p><ul class="about__list">${contact}</ul></div>
